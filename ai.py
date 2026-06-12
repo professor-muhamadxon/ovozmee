@@ -4,11 +4,17 @@ import config
 from classifier import classify_request, get_system_prompt
 
 
+GEMINI_OPENAI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
+
+
 def _make_client(provider: str, api_key: str | None, base_url: str | None):
-    """OpenAI-mos (Groq, OpenAI va boshqalar) klient yaratadi."""
+    """OpenAI-mos (Groq, OpenAI, Gemini va boshqalar) klient yaratadi."""
     if provider == "openai":
         from openai import OpenAI
         return OpenAI(api_key=api_key, base_url=base_url)
+    if provider == "gemini":
+        from openai import OpenAI
+        return OpenAI(api_key=api_key, base_url=base_url or GEMINI_OPENAI_BASE_URL)
     # default: groq (OpenAI-mos API)
     return Groq(api_key=api_key, base_url=base_url)
 

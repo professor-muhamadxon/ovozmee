@@ -29,57 +29,81 @@ copy .env.example .env
 
 ### Muhim sozlamalar (`.env`)
 
+Sozlash ikki bosqichli: avval qaysi provayderni ishlatishni tanlaysiz
+(`LLM_PROVIDER` / `ASR_PROVIDER`), so'ng shu provayder uchun API kalit va
+model nomini **alohida o'zgaruvchilarda** beradisiz. Har bir provayder uchun
+alohida maydon bo'lgani uchun, ularning hammasini oldindan to'ldirib qo'yib,
+keyin xohlagan paytda faqat `LLM_PROVIDER`/`ASR_PROVIDER`ni o'zgartirib
+provayderlar orasida almashishingiz mumkin.
+
 | O'zgaruvchi | Tavsif |
 | --- | --- |
 | `BOT_TOKEN` | Telegram bot tokeni (@BotFather) |
-| `LLM_PROVIDER` | Chat modeli provayderi: `groq` yoki `openai` |
-| `LLM_API_KEY` | LLM provayder uchun API kalit |
-| `LLM_MODEL` | Chat modeli nomi (pastdagi jadvalga qarang) |
-| `LLM_BASE_URL` | Ixtiyoriy — OpenAI-mos boshqa server manzili |
-| `ASR_PROVIDER` | Ovozni matnga o'girish provayderi: `groq` \| `openai` \| `gemini` \| `qwen` |
-| `ASR_API_KEY` | ASR uchun API kalit (bo'sh bo'lsa `LLM_API_KEY` ishlatiladi) |
-| `ASR_MODEL` | ASR modeli nomi (pastdagi jadvalga qarang) |
-| `ASR_BASE_URL` | Ixtiyoriy — OpenAI-mos boshqa server manzili |
+| `LLM_PROVIDER` | Hozir ishlatiladigan chat provayderi: `groq` \| `openai` \| `gemini` |
+| `ASR_PROVIDER` | Hozir ishlatiladigan ASR provayderi: `groq` \| `openai` \| `gemini` \| `qwen` |
+| `GROQ_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `QWEN_API_KEY` | Har bir provayder uchun alohida API kalit |
+| `GROQ_LLM_MODEL`, `OPENAI_LLM_MODEL`, `GEMINI_LLM_MODEL` | Har bir provayder uchun chat modeli |
+| `GROQ_ASR_MODEL`, `OPENAI_ASR_MODEL`, `GEMINI_ASR_MODEL`, `QWEN_ASR_MODEL` | Har bir provayder uchun ASR modeli |
+| `GROQ_BASE_URL`, `OPENAI_BASE_URL`, `GEMINI_BASE_URL`, `QWEN_BASE_URL` | Ixtiyoriy — OpenAI-mos boshqa server manzillari |
 | `ASR_LANGUAGE` | Transkripsiya tili kodi (masalan, `uz`) |
 
 ## Provayder va model parametrlari
 
 Quyidagi jadvallar har bir provayder uchun joriy (2026 boshi holatiga) tavsiya
-etiladigan model nomlarini ko'rsatadi. Eng so'nggi narx va modellar ro'yxatini
+etiladigan model nomlarini ko'rsatadi (`.env.example` faylida standart
+qiymatlar sifatida qo'yilgan). Eng so'nggi narx va modellar ro'yxatini
 provayderning rasmiy hujjatlaridan tekshiring, chunki bu qiymatlar tez-tez
 yangilanadi.
 
-### LLM (chat) modellari — `LLM_MODEL`
+### LLM (chat) modellari
 
-| Provayder (`LLM_PROVIDER`) | Tavsiya etilgan `LLM_MODEL` | Izoh |
-| --- | --- | --- |
-| `groq` | `llama-3.3-70b-versatile` | Tezkor va sifatli, bepul limiti bor |
-| `groq` | `llama-3.1-8b-instant` | Eng tez/arzon, oddiy vazifalar uchun |
-| `openai` | `gpt-4o-mini` | Arzon va tez, ko'p tilni yaxshi tushunadi |
-| `openai` | `gpt-4o` | Yuqori sifat, narxi qimmatroq |
-
-### ASR (ovozni matnga o'girish) modellari — `ASR_MODEL`
-
-| Provayder (`ASR_PROVIDER`) | Tavsiya etilgan `ASR_MODEL` | `ASR_API_KEY` manbasi | Izoh |
+| Provayder (`LLM_PROVIDER`) | O'zgaruvchi | Tavsiya etilgan model | Izoh |
 | --- | --- | --- | --- |
-| `groq` (standart) | `whisper-large-v3` yoki `whisper-large-v3-turbo` | [console.groq.com](https://console.groq.com) | `turbo` versiyasi tezroq, biroz aniqligi past |
-| `openai` | `whisper-1` | [platform.openai.com](https://platform.openai.com) | OpenAI-mos audio.transcriptions API |
-| `gemini` | `gemini-1.5-flash` yoki `gemini-2.0-flash` | [aistudio.google.com](https://aistudio.google.com/app/apikey) | Audio promptga qo'shilib transkripsiya qilinadi |
-| `qwen` | `qwen-audio-asr` | [dashscope.console.aliyun.com](https://dashscope.console.aliyun.com) | DashScope OpenAI-mos endpoint orqali |
+| `groq` | `GROQ_LLM_MODEL` | `llama-3.1-8b-instant` yoki `llama-3.3-70b-versatile` | Tezkor/arzon yoki sifatliroq, bepul limiti bor |
+| `openai` | `OPENAI_LLM_MODEL` | `gpt-4o-mini` yoki `gpt-4o` | Arzon-tez yoki yuqori sifat |
+| `gemini` | `GEMINI_LLM_MODEL` | `gemini-2.5-flash` yoki `gemini-flash-3.5` | Google'ning OpenAI-mos endpointi orqali, bepul kvotasi bor |
 
-## Boshqa ASR modeliga o'tish
+### ASR (ovozni matnga o'girish) modellari
 
-ASR qismi `ASR_PROVIDER`, `ASR_MODEL`, `ASR_API_KEY` va `ASR_BASE_URL`
-o'zgaruvchilari orqali sozlanadi, kod o'zgartirilishi shart emas (`asr.py`):
+| Provayder (`ASR_PROVIDER`) | O'zgaruvchi | Tavsiya etilgan model | API kalit manbasi | Izoh |
+| --- | --- | --- | --- | --- |
+| `gemini` (standart) | `GEMINI_ASR_MODEL` | `gemini-2.5-flash`, `gemini-flash-3.5` yoki `gemini-2.0-flash` | [aistudio.google.com](https://aistudio.google.com/app/apikey) | Audio promptga qo'shilib transkripsiya qilinadi, bepul kvotasi bor |
+| `groq` | `GROQ_ASR_MODEL` | `whisper-large-v3` yoki `whisper-large-v3-turbo` | [console.groq.com](https://console.groq.com) | `turbo` versiyasi tezroq, biroz aniqligi past |
+| `openai` | `OPENAI_ASR_MODEL` | `whisper-1` | [platform.openai.com](https://platform.openai.com) | OpenAI-mos audio.transcriptions API |
+| `qwen` | `QWEN_ASR_MODEL` | `qwen-audio-asr` | [dashscope.console.aliyun.com](https://dashscope.console.aliyun.com) | DashScope OpenAI-mos endpoint orqali |
 
-- **Groq Whisper** (standart): `ASR_PROVIDER=groq`, `ASR_MODEL=whisper-large-v3`
-- **OpenAI Whisper**: `ASR_PROVIDER=openai`, `ASR_MODEL=whisper-1`, `ASR_API_KEY=<openai_key>`
-- **OpenAI-mos boshqa server** (masalan, lokal Whisper serveri): `ASR_PROVIDER=openai`, `ASR_BASE_URL=http://localhost:PORT/v1`
-- **Google Gemini**: `ASR_PROVIDER=gemini`, `ASR_MODEL=gemini-1.5-flash`, `ASR_API_KEY=<google_api_key>`
-- **Qwen (Alibaba DashScope)**: `ASR_PROVIDER=qwen`, `ASR_MODEL=qwen-audio-asr`, `ASR_API_KEY=<dashscope_api_key>`
+## Provayderlar orasida almashish
+
+Provayderni o'zgartirish uchun faqat `LLM_PROVIDER` va/yoki `ASR_PROVIDER`ni
+yangilang — tegishli `*_API_KEY`, `*_LLM_MODEL`/`*_ASR_MODEL` va ixtiyoriy
+`*_BASE_URL` qiymatlari `.env`da allaqachon tayyor turadi, kodga tegish
+shart emas (`config.py`, `ai.py`, `asr.py`):
+
+```bash
+# Misol: ASR'ni Gemini'dan Groq Whisper'ga o'tkazish
+ASR_PROVIDER=groq
+
+# Misol: chatni OpenAI'ga o'tkazish
+LLM_PROVIDER=openai
+```
 
 ## Ishga tushirish
 
 ```bash
 python main.py
 ```
+
+## Bot buyruqlari va foydalanish
+
+| Buyruq / Xabar turi | Tavsif |
+| --- | --- |
+| `/start` | Botni ishga tushiradi, salomlashadi va lokatsiya yuborish tugmasini ko'rsatadi |
+| 📍 Lokatsiya | Foydalanuvchi joylashuvini saqlaydi — keyingi qidiruvlar shu nuqta atrofida (3 km) bo'ladi |
+| 💬 Matnli xabar | So'rovni tahlil qilib, kategoriyaga (uxlash/ovqat/umumiy) mos javob qaytaradi |
+| 🎤 Ovozli xabar | Xabarni ASR orqali matnga o'giradi, so'ng matnli xabar kabi qayta ishlaydi |
+
+**Foydalanish tartibi:**
+
+1. `/start` buyrug'ini yuboring
+2. 📍 tugmasi orqali lokatsiyangizni yuboring
+3. Matnli yoki ovozli xabar bilan nima qidirayotganingizni ayting (masalan: "yaqin atrofda mehmonxona bor-mi?" yoki "ovqatlanadigan joy kerak")
